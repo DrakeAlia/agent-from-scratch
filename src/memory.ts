@@ -7,11 +7,13 @@ export type MessageWithMetadata = AIMessage & {
   createdAt: string
 }
 
-export const addMetadata = (message: AIMessage): MessageWithMetadata => ({
-  ...message,
-  id: uuidv4(),
-  createdAt: new Date().toISOString(),
-})
+export const addMetadata = (message: AIMessage) => {
+  return {
+    ...message,
+    id: uuidv4(),
+    createdAt: new Date().toISOString(),
+  }
+}
 
 export const removeMetadata = (message: MessageWithMetadata): AIMessage => {
   const { id, createdAt, ...messageWithoutMetadata } = message
