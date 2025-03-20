@@ -7,6 +7,10 @@ export type MessageWithMetadata = AIMessage & {
   createdAt: string
 }
 
+type Data = {
+  messages: MessageWithMetadata[]
+}
+
 export const addMetadata = (message: AIMessage) => {
   return {
     ...message,
@@ -15,20 +19,17 @@ export const addMetadata = (message: AIMessage) => {
   }
 }
 
-export const removeMetadata = (message: MessageWithMetadata): AIMessage => {
-  const { id, createdAt, ...messageWithoutMetadata } = message
-  return messageWithoutMetadata
+export const removeMetadata = (message: MessageWithMetadata) => {
+  const { id, createdAt, ...rest } = message
+  return rest
 }
 
-type Data = {
-  messages: MessageWithMetadata[]
+const defaultData: Data = {
+  messages: [],
 }
-
-const defaultData: Data = { messages: [] }
 
 export const getDb = async () => {
   const db = await JSONFilePreset<Data>('db.json', defaultData)
-
   return db
 }
 
@@ -41,4 +42,17 @@ export const addMessages = async (messages: AIMessage[]) => {
 export const getMessages = async () => {
   const db = await getDb()
   return db.data.messages.map(removeMetadata)
+}
+
+export const saveToolResponse = async (
+  toolCallId: string,
+  toolResponse: string
+) => {
+  return addMessages([
+    {
+      role: 'tool',
+      content: toolResponse,
+      tool_call_id: toolCallId,
+    },
+  ])
 }
